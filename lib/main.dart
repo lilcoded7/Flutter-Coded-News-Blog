@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:url_launcher/url_launcher.dart';  // Import url_launcher package
 
 void main() {
   runApp(MyApp());
@@ -32,8 +33,16 @@ class _NewsPageState extends State<NewsPage> {
       List<dynamic> data = jsonDecode(response.body);
       return data.map((newsJson) => News.fromJson(newsJson)).toList();
     } else {
-      // Throw an exception with status code and response body
       throw Exception('Failed to load news: ${response.statusCode}\n${response.body}');
+    }
+  }
+
+  Future<void> _launchChatSupport() async {
+    const chatUrl = 'https://tawk.to/chat/6405c8df4247f20fefe43d51/1gqr9hbfj';
+    if (await canLaunch(chatUrl)) {
+      await launch(chatUrl);
+    } else {
+      throw 'Could not launch $chatUrl';
     }
   }
 
@@ -49,7 +58,6 @@ class _NewsPageState extends State<NewsPage> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            // Display the error message with status code and response body
             return Center(
               child: Padding(
                 padding: EdgeInsets.all(16.0),
@@ -99,6 +107,11 @@ class _NewsPageState extends State<NewsPage> {
             );
           }
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _launchChatSupport,
+        child: Icon(Icons.chat),
+        tooltip: 'Chat Support',
       ),
     );
   }
